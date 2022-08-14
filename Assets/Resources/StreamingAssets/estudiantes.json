@@ -1,0 +1,52 @@
+﻿{
+	"datos":[
+		{
+			"id": 1,
+			"nombre": "Mateo",
+			"apellido": "Garzon",
+			"edad": 15,
+			"correo": "mateoG@test.com",
+			"nota": 3.1
+		},
+		{
+			"id": 2,
+			"nombre": "Jose",
+			"apellido": "Lopez",
+			"edad": 22, 
+			"correo": "josenotlopez@test.com",
+			"nota": 4.3
+		},
+		{
+			"id": 3,
+			"nombre": "Ana",
+			"apellido": "Rojas",
+			"edad": 23,
+			"correo": "anaro@test.com",
+			"nota": 2.0
+		},
+		{
+			"id": 4,
+			"nombre": "Pepito",
+			"apellido": "Perez",
+			"edad": 18,
+			"correo": "pepe@test.com",
+			"nota": 1.2
+		},
+		{
+			"id": 5,
+			"nombre": "Lucia",
+			"apellido": "Arcos",
+			"edad": 20,
+			"correo": "luzar@test.com",
+			"nota": 3.8
+		},
+		{
+			"id": 6,
+			"nombre": "Valentina",
+			"apellido": "Zagaz",
+			"edad": 17,
+			"correo": "vazag@test.com",
+			"nota": 2.9
+		}
+	]
+}
