@@ -7,7 +7,6 @@ public class Table_Behaviour : MonoBehaviour
 {
     public static Table_Behaviour instance;
     public bool canUpdateJSON = true;
-    public TextAsset studentJSON;
     public StudentList studentArray = new StudentList();
     public GameObject tableStudent_prefabObj;
     public GameObject tableStudent_content;
@@ -31,22 +30,45 @@ public class Table_Behaviour : MonoBehaviour
         //check if the name of the array is "datos"
         if(canUpdateJSON)
         {
-            if(studentJSON.text.Contains("datos"))
+            if(EditJSON_Behaviour.instance.jsonContent.Contains("datos"))
             {
-                fileTitle.text = "Revisando archivo: "+studentJSON.name;
-                studentArray = JsonUtility.FromJson<StudentList>(studentJSON.text);
-                CreateStudentsFromArray();
-                verifyButton.interactable = true;
+                //tries to load the JSON and catches exceptions. if not exception, continue to load normally
+                try
+                {
+                    fileTitle.text = "Revisando archivo: "+EditJSON_Behaviour.instance.jsonFullname;
+                    studentArray = JsonUtility.FromJson<StudentList>(EditJSON_Behaviour.instance.jsonContent);
+                    CreateStudentsFromArray();
+                    verifyButton.interactable = true;
+                    EditJSON_Behaviour.instance.restoreJSON_obj.SetActive(false);
+                }
+                catch (System.Exception) //if the system catch a bad parse type, then un-load students. has the possibility to restore data
+                {
+                    fileTitle.text = "No se ha reconocido el archivo. \n Al JSON le falta una coma, comillas o algun simbolo.";
+                    studentArray = new StudentList();
+                    verifyButton.interactable = false;
+                    DeleteAllContent();
+                    EditJSON_Behaviour.instance.restoreJSON_obj.SetActive(true);
+                }
             }
-            //if not, not recognized file
+            //if not, not recognized file and un-load students. has the possibility to restore data
             else
             {
                 fileTitle.text = "No se ha reconocido el archivo. \n Revisar que el nombre de objeto sea la palabra 'datos'.";
                 studentArray = new StudentList();        
                 verifyButton.interactable = false;
+                DeleteAllContent();
+                    EditJSON_Behaviour.instance.restoreJSON_obj.SetActive(true);
             }
         }
     }
+
+    private void DeleteAllContent()
+    {
+        for (int i = 0; i < tableStudent_content.transform.childCount; i++)
+        { 
+            Destroy(tableStudent_content.transform.GetChild(i).gameObject);
+        }
+    } 
 
     public void CreateStudentsFromArray()
     {
@@ -55,8 +77,6 @@ public class Table_Behaviour : MonoBehaviour
         //if the content is zero by initial
         if(tableStudent_content.transform.childCount.Equals(0))
         {
-            //print("scenario 1");
-
             for (int i = 0; i < studentArray.datos.Length; i++)
             {
                 GameObject auxPref = Instantiate(tableStudent_prefabObj, tableStudent_content.transform);
@@ -67,14 +87,9 @@ public class Table_Behaviour : MonoBehaviour
 
         //if the length is not same between items and array
         else if(!studentArray.datos.Length.Equals(tableStudent_content.transform.childCount))
-        {
-            //print("scenario 2");
-            
+        {   
             //delete all of children
-            for (int i = 0; i < tableStudent_content.transform.childCount; i++)
-            { 
-                Destroy(tableStudent_content.transform.GetChild(i).gameObject);
-            }
+            DeleteAllContent();
 
             //instantiate them again
             for (int i = 0; i < studentArray.datos.Length; i++)
@@ -87,9 +102,7 @@ public class Table_Behaviour : MonoBehaviour
 
         //if the length is the same, update the items
         else
-        {
-            //print("scenario 3");
-            
+        {   
             for (int i = 0; i < tableStudent_content.transform.childCount; i++)
             {
                 //first review if item already exists
@@ -140,6 +153,7 @@ public class Table_Behaviour : MonoBehaviour
     private void OpenErrorMenu(int caseID, int objectIndex)
     {
         errorMenu_obj.SetActive(true);
+        EditJSON_Behaviour.instance.JSONMenu_obj.SetActive(false);
 
         switch (caseID)
         {
@@ -176,6 +190,7 @@ public class Table_Behaviour : MonoBehaviour
         }
 
         LeanTween.moveLocalX(elements, 1930f, 0.4f).setEaseOutQuart().setOnComplete(() =>{
+            EditJSON_Behaviour.instance.openJSONedit_btn.gameObject.SetActive(false);
             verifyButton.gameObject.SetActive(false);
             moveLeftButton.gameObject.SetActive(true);
             moveRightButton.gameObject.SetActive(true);
@@ -211,19 +226,17 @@ public class Table_Behaviour : MonoBehaviour
     public void ResetTable()
     {
         elements.GetComponent<RectTransform>().anchoredPosition = new Vector2(0f,0f);
+        EditJSON_Behaviour.instance.openJSONedit_btn.gameObject.SetActive(true);
         verifyButton.gameObject.SetActive(true);
         moveLeftButton.gameObject.SetActive(false);
         moveRightButton.gameObject.SetActive(false);
         
+        EditJSON_Behaviour.instance.openJSONedit_btn.interactable = true;
         verifyButton.interactable = true;
         moveLeftButton.interactable = true;
         moveRightButton.interactable = true;
 
-        for (int i = 0; i < tableStudent_content.transform.childCount; i++)
-        { 
-            Destroy(tableStudent_content.transform.GetChild(i).gameObject);
-        }
-
+        DeleteAllContent();
         canUpdateJSON = true;
     }
 }
